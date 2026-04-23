@@ -36,6 +36,41 @@ README.md
 
 ---
 
+## 💻 Envío de archivos desde Ubuntu via ADB
+
+### Instalar herramientas necesarias
+```bash
+sudo apt install android-tools-adb heimdall-flash lz4
+```
+
+### Verificar que la tablet es detectada en TWRP
+```bash
+adb devices
+# Debe mostrar algo como: R52N30F23JR    recovery
+```
+
+### Enviar archivos al almacenamiento interno
+```bash
+adb push archivo.zip /sdcard/
+adb push archivo.img /sdcard/
+```
+
+### Solución si /sdcard/ da "Permission denied"
+Hacer Format Data en TWRP primero:
+- Wipe → Format Data → escribe `yes`
+- Luego reconectar y volver a intentar el adb push
+
+### Solución si /sdcard/ da "No space left on device"
+Usar el pendrive OTG en lugar del almacenamiento interno (ver sección de pendrive más abajo)
+
+### Descomprimir archivos .xz en Ubuntu
+```bash
+xz -d archivo.img.xz
+# Genera archivo.img listo para flashear
+```
+
+---
+
 ## 📌 Proceso de instalación
 
 ### 1. Instalar TWRP
@@ -105,6 +140,23 @@ xz -d lineage-20.0-UNOFFICIAL-arm64_bgN.img.xz
 - **Andy Yan** - GSI LineageOS builds
 - **Magendanz** - TWRP para SM-T510/T515
 - **Comunidad XDA Developers**
+
+---
+
+## 🐛 Errores comunes y soluciones
+
+| Error | Causa | Solución |
+|-------|-------|----------|
+| `Permission denied` en adb push | /sdcard/ sin formatear | Format Data en TWRP primero |
+| `No space left on device` | Partición system llena | Usar pendrive OTG |
+| `Error 7` al flashear ZIP | Script verifica modelo | Editar updater-script y eliminar verificación |
+| `Error 20` al flashear GApps | GApps incompatibles con ROM | La ROM arm64_bgN ya incluye GApps |
+| `failed to mount /system_root` | Multidisabler incompatible con GSI | Omitir multidisabler con este vendor |
+| Bootloop después de flashear | Orden incorrecto de flasheo | Seguir orden exacto: repartitioner → vendor → boot → ROM |
+| `unsupported AVB` en heimdall | vbmeta incorrecto | Extraer vbmeta.img.lz4 del TWRP tar y descomprimir con lz4 |
+| Audio no funciona | Vendor incorrecto (T510 WiFi) | Usar vendor específico T515 del proyecto Lifebreathing |
+| ADB no detecta dispositivo en sistema | Bug conocido de GSI | Activar USB debugging + cambiar modo USB a "Transferencia de archivos" |
+| `ERROR: Failed to detect compatible download-mode device` | Tablet no en Download Mode | Vol Abajo + Vol Arriba + conectar USB |
 
 ---
 
